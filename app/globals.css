@@ -1287,3 +1287,144 @@ a:focus-visible {
 .map-settings [data-slot='dialog-title'] {
   font-size: 20px;
 }
+.auth-page {
+  min-height: 100dvh;
+  background: #edf2e8;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+}
+.auth-card {
+  background: #fff;
+  width: min(100%, 460px);
+  border: 1px solid #dce5d4;
+  border-radius: 24px;
+  padding: 38px;
+  box-shadow: 0 20px 60px #345a3512;
+}
+.auth-card .brand {
+  margin-bottom: 38px;
+}
+.auth-card h1 {
+  font-size: 32px;
+  line-height: 1.18;
+  font-weight: 600;
+  letter-spacing: -1px;
+  margin: 12px 0;
+}
+.auth-intro {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #72816a;
+  margin-bottom: 24px;
+}
+.auth-card form {
+  display: grid;
+  gap: 18px;
+  margin-top: 22px;
+}
+.auth-card input {
+  height: 44px;
+}
+.auth-card .field small {
+  font-size: 12px;
+  color: #788370;
+}
+.auth-submit {
+  height: 44px !important;
+  margin-top: 4px;
+}
+.auth-reset {
+  font-size: 13px;
+  text-decoration: underline;
+  color: #52744c;
+  margin: 18px auto;
+  display: block;
+}
+.auth-benefits {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8da;
+  font-size: 12px;
+  color: #6c8060;
+}
+.auth-benefits span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.auth-local-note {
+  font-size: 12px;
+  color: #809075;
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 18px;
+}
+.auth-notice {
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  background: #edf5e8;
+  border-radius: 8px;
+  color: #45673c;
+}
+.auth-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #507047;
+}
+.account-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6d7e62;
+  max-width: 240px;
+  margin-left: auto;
+  margin-right: 16px;
+}
+.account-control > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.migration-card {
+  padding: 15px;
+  border: 1px solid #ccdcbf;
+  border-radius: 10px;
+  background: #f1f6ea;
+  font-size: 13px;
+  color: #5c744e;
+}
+.migration-card strong {
+  font-weight: 600;
+}
+.migration-card p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 6px 0 10px;
+}
+.migration-card button {
+  font-size: 12px;
+  white-space: normal;
+  height: auto;
+  min-height: 36px;
+}
+@media (max-width: 700px) {
+  .auth-card {
+    padding: 28px 22px;
+  }
+  .auth-card h1 {
+    font-size: 29px;
+  }
+  .account-control {
+    margin-right: 8px;
+    max-width: 80px;
+  }
+  .account-control > span {
+    display: none;
+  }
+}

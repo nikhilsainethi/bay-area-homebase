@@ -1,3 +1,6 @@
+import { CLOUD_MODE } from './supabase';
+import { listCloud, saveCloud, removeCloud, importCloud } from './cloud-store';
+import { parseBackup } from './cloud-records';
 import { BrowserStore } from './browser-store';
 import {
   parseBounds,
@@ -29,6 +32,21 @@ export async function api(path: string, init?: RequestInit): Promise<ApiData> {
     }
     if (!response.ok) throw new Error(data.error || 'Please try again.');
     return data;
+  }
+  if (CLOUD_MODE && path.startsWith('/api/properties')) {
+    if (init?.method === 'POST')
+      return {
+        property: await saveCloud(
+          JSON.parse(typeof init.body === 'string' ? init.body : '{}'),
+        ),
+      } as ApiData;
+    if (init?.method === 'DELETE') {
+      await removeCloud(
+        new URL(path, location.origin).searchParams.get('id') || '',
+      );
+      return {} as ApiData;
+    }
+    return { properties: await listCloud() } as ApiData;
   }
   if (path.startsWith('/api/properties')) {
     const store = browserStore();
@@ -97,4 +115,23 @@ export async function getMapConfig() {
     googleMapsApiKey: string;
     googleMapsMapId: string;
   };
+}
+
+export async function exportActiveBackup() {
+  const properties = CLOUD_MODE ? await listCloud() : browserStore().list();
+  return JSON.stringify(
+    {
+      format: 'homebase-backup',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      properties,
+    },
+    null,
+    2,
+  );
+}
+export async function importActiveBackup(raw: string) {
+  return CLOUD_MODE
+    ? await importCloud(parseBackup(raw))
+    : browserStore().importBackup(raw);
 }

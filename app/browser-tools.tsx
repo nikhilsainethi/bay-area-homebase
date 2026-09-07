@@ -10,7 +10,8 @@ import {
   DialogHeader,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { browserStore } from '@/lib/client';
+import { exportActiveBackup, importActiveBackup } from '@/lib/client';
+import { CLOUD_MODE } from '@/lib/supabase';
 import { STORAGE_KEY } from '@/lib/browser-store';
 export default function BrowserTools({
   onChange,
@@ -23,12 +24,13 @@ export default function BrowserTools({
     [settings, setSettings] = useState(false),
     [key, setKey] = useState(''),
     [error, setError] = useState('');
-  function backup() {
+  async function backup() {
     try {
       let data;
       try {
-        data = browserStore().backup();
-      } catch {
+        data = await exportActiveBackup();
+      } catch (error) {
+        if (CLOUD_MODE) throw error;
         data = localStorage.getItem(STORAGE_KEY) || '[]';
       }
       const url = URL.createObjectURL(
@@ -49,7 +51,7 @@ export default function BrowserTools({
     if (!f) return;
     try {
       if (f.size > 5_000_000) throw new Error('Maximum backup size is 5 MB.');
-      const result = browserStore().importBackup(await f.text());
+      const result = await importActiveBackup(await f.text());
       await onChange();
       onNotice(
         `Imported ${result.added} properties; kept ${result.skipped} existing records`,

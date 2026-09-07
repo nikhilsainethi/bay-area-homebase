@@ -1,4 +1,4 @@
 import { createRoot } from 'react-dom/client';
-import Homebase from '../app/homebase';
+import AuthGate from '../app/auth-gate';
 import '../app/globals.css';
-createRoot(document.getElementById('root')!).render(<Homebase />);
+createRoot(document.getElementById('root')!).render(<AuthGate />);

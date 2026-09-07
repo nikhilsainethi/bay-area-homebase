@@ -2,7 +2,7 @@
 
 **[Open the app](https://nikhilsainethi.github.io/bay-area-homebase/)**
 
-A map-first apartment discovery and personal research tracker for Sunnyvale, Santa Clara, Mountain View, Milpitas, and San Jose. Hosted on GitHub Pages, with no database or sign-in required.
+A map-first apartment discovery and personal research tracker for Sunnyvale, Santa Clara, Mountain View, Milpitas, and San Jose. Hosted on GitHub Pages with Supabase email/password sign-in and private cloud shortlists.
 
 ## Find and compare apartments
 
@@ -15,9 +15,11 @@ A map-first apartment discovery and personal research tracker for Sunnyvale, San
 
 ## Your data and backups
 
-**The GitHub Pages version stores your shortlist in this browser's local storage.** It is not sent to GitHub or a database. It does not sync across devices, browsers, or origins. Clearing site data removes your saved records.
+**Sign in to save your shortlist in Supabase and open it from any device.** Each account can access only its own records, enforced by database row-level security. The app refreshes when you return to its tab. Create an app account using your email and confirm it before signing in.
 
-Use **Export** regularly to download a JSON backup. On another device, open the app and choose **Import**. Import validates the entire backup before saving and adds new records without overwriting existing research; duplicate IDs or mapped buildings are skipped. API keys are excluded from backups. Exported files contain your notes and contact details, so keep them wherever you normally store personal documents.
+Existing browser records are retained. After signing in from the browser you used previously, choose **Copy browser shortlist to account**. Existing cloud records are never overwritten by this copy. Browser map keys stay local.
+
+Use **Export** to back up the signed-in account regularly to download a JSON backup. On another device, open the app and choose **Import**. Import validates the entire backup before saving and adds new records without overwriting existing research; duplicate IDs or mapped buildings are skipped. API keys are excluded from backups. Exported files contain your notes and contact details, so keep them wherever you normally store personal documents.
 
 The public repository contains application code, not your saved records. The office destination is part of the app configuration.
 
@@ -70,3 +72,9 @@ The GitHub Actions workflow in `.github/workflows/deploy-pages.yml` runs checks,
 The repository also retains the original Sites/Cloudflare D1 implementation under `app/api` and `db`. It is not used or deployed by GitHub Pages. `npm run dev` / `npm run build` target this alternate runtime; `npm run db:local` applies its local migrations. That runtime uses Sites dispatch identity and a separate D1 database, and must not be exposed as a standalone Worker trusting unverified identity headers. No live Sites deployment was made; the requested deployment is GitHub Pages.
 
 Optional browser WebMCP tools can read the shortlist and save/update properties using the same validation as the UI. Unsupported browsers omit these tools. The automated tests cover storage roundtrips, non-destructive backup merging, invalid import atomicity, quota/corruption handling, safe URLs, unknown pricing, fractional bathrooms, commute links and partial updates. The optional server integration suite runs separately with `npm run test:integration` against its local server.
+
+## Supabase setup
+
+Apply `supabase/migrations/202609070001_homebase.sql` in the project SQL editor. Set Auth Site URL and allowed redirect URL to the deployed app URL, including `/bay-area-homebase/`. Keep email confirmation enabled. Supabase’s default email sender limits delivery to project-team email addresses; configure custom SMTP before inviting other users.
+
+Set repository Actions variables `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`. Local development uses the equivalent `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env.local`. Only the publishable key belongs in browser builds; never use a secret or service-role key. Without both settings, the app retains browser-only mode.

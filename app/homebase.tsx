@@ -2,6 +2,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api, BROWSER_MODE, browserStore } from '@/lib/client';
 import BrowserTools from './browser-tools';
+import { CLOUD_MODE } from '@/lib/supabase';
+import { AccountButton, BrowserMigration } from './cloud-account';
 import {
   MapPin,
   Plus,
@@ -113,7 +115,9 @@ function Links({ p }: { p: Property | Place }) {
     </div>
   );
 }
-export default function Homebase() {
+export default function Homebase({
+  accountEmail,
+}: { accountEmail?: string } = {}) {
   const [city, setCity] = useState('Sunnyvale'),
     [center, setCenter] = useState({ lat: 37.3925, lng: -122.027 }),
     [bounds, setBounds] = useState<Bounds | null>(null),
@@ -159,7 +163,11 @@ export default function Homebase() {
     if (!BROWSER_MODE) return;
     const handle = () => void reload();
     window.addEventListener('storage', handle);
-    return () => window.removeEventListener('storage', handle);
+    window.addEventListener('focus', handle);
+    return () => {
+      window.removeEventListener('storage', handle);
+      window.removeEventListener('focus', handle);
+    };
   }, [reload]);
   useEffect(() => {
     if (!notice) return;
@@ -325,7 +333,7 @@ export default function Homebase() {
           const p = await save(
             mergePropertyUpdate(
               input,
-              BROWSER_MODE ? browserStore().list() : saved,
+              BROWSER_MODE && !CLOUD_MODE ? browserStore().list() : saved,
             ),
           );
           return { id: p.id, name: p.name, updatedAt: p.updatedAt };
@@ -371,6 +379,7 @@ export default function Homebase() {
           </span>
           <ArrowUpRight size={15} />
         </a>
+        {CLOUD_MODE && <AccountButton email={accountEmail} />}
         <Button onClick={add} className="add-button">
           <Plus />
           Add property
@@ -548,6 +557,9 @@ export default function Homebase() {
           {BROWSER_MODE && (
             <BrowserTools onChange={reload} onNotice={setNotice} />
           )}
+          {CLOUD_MODE && (
+            <BrowserMigration onChange={reload} onNotice={setNotice} />
+          )}
           <div className="result-count">
             <span>
               {tab === 'discover'
@@ -685,7 +697,14 @@ export default function Homebase() {
             </div>
           )}
           <div className="source-note">
-            {BROWSER_MODE && (
+            {CLOUD_MODE && (
+              <>
+                Saved privately to your account. Sign in on another device to
+                view your shortlist.
+                <br />
+              </>
+            )}
+            {BROWSER_MODE && !CLOUD_MODE && (
               <>
                 Saved in this browser only. Export a backup before switching
                 devices or clearing browsing data.
