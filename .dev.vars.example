@@ -1,0 +1,5 @@
+# Optional Google Maps browser key. This is delivered to the signed-in browser;
+# restrict it to your website origins in Google Cloud. Never commit a real key.
+GOOGLE_MAPS_API_KEY=""
+# Optional custom vector map ID. DEMO_MAP_ID is used if absent.
+GOOGLE_MAPS_MAP_ID=""
