@@ -63,6 +63,7 @@ export type Property = {
   updatedAt: string;
 };
 export type Place = {
+  nameKnown?: boolean;
   osmId: string;
   name: string;
   address: string;
@@ -323,21 +324,23 @@ export function normalizePlaces(data: unknown): Place[] {
     const lat = Number(e.lat ?? center.lat),
       lng = Number(e.lon ?? center.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-    const street = [t['addr:housenumber'], t['addr:street']]
+    const street = [t['addr:housenumber'] ?? t['contact:housenumber'], t['addr:street'] ?? t['contact:street']]
       .filter(Boolean)
       .join(' ');
-    const city = typeof t['addr:city'] === 'string' ? t['addr:city'] : '';
-    const name =
-      typeof t.name === 'string'
-        ? t.name
-        : street || 'Unnamed apartment building';
-    const key = `${name.toLowerCase()}:${lat.toFixed(3)}:${lng.toFixed(3)}`;
+    const cityValue = t['addr:city'] ?? t['contact:city'];
+    const city = typeof cityValue === 'string' ? cityValue : '';
+    const candidates = [t.name, t['name:en'], t.official_name, t.short_name];
+    const mappedName = candidates.find((value) => typeof value === 'string' && value.trim() && value.trim().toLowerCase() !== street.toLowerCase() && !/^\d+[\s\d-]*$/.test(value.trim()) && !/^(building|block|unit)\s+[a-z0-9-]+$/i.test(value.trim()));
+    const nameKnown = typeof mappedName === 'string';
+    const name = nameKnown ? mappedName.trim() : 'Apartment · name not mapped';
+    const key = nameKnown ? `${name.toLowerCase()}:${lat.toFixed(3)}:${lng.toFixed(3)}` : `${String(e.type)}/${String(e.id)}`;
     if (seen.has(key)) continue;
     seen.add(key);
     found.push({
+      nameKnown,
       osmId: `${typeof e.type === 'string' ? e.type : 'way'}/${typeof e.id === 'number' ? e.id : 0}`,
       name,
-      address: [street, city, t['addr:postcode']].filter(Boolean).join(', '),
+      address: [street, city, t['addr:postcode'] ?? t['contact:postcode']].filter(Boolean).join(', '),
       city,
       lat,
       lng,

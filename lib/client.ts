@@ -76,7 +76,7 @@ export async function api(path: string, init?: RequestInit): Promise<ApiData> {
         'Please wait a few seconds before searching another area.',
       );
     lastSearch = Date.now();
-    const query = `[out:json][timeout:20];(nwr["building"="apartments"](${key});nwr["residential"="apartments"](${key});nwr["landuse"="residential"]["name"~"apartment|residence",i](${key}););out center tags 600;`;
+    const query = `[out:json][timeout:20];(nwr["building"="apartments"]["name"](${key});nwr["residential"="apartments"]["name"](${key});nwr["landuse"="residential"]["name"](${key});nwr["office"="property_management"]["name"](${key}););out center tags 250;(nwr["building"="apartments"][!"name"](${key});nwr["residential"="apartments"][!"name"](${key}););out center tags 350;`;
     try {
       const r = await fetch('https://overpass-api.de/api/interpreter', {
         method: 'POST',

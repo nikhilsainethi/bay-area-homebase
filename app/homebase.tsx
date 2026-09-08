@@ -127,6 +127,7 @@ export default function Homebase({
     [tab, setTab] = useState('discover'),
     [table, setTable] = useState(false),
     [query, setQuery] = useState(''),
+    [showUnnamed, setShowUnnamed] = useState(false),
     [apartmentName, setApartmentName] = useState(''),
     [nameSummary, setNameSummary] = useState(''),
     [searched, setSearched] = useState(false),
@@ -268,16 +269,17 @@ export default function Homebase({
   const filteredPlaces = useMemo(
     () =>
       places
+        .filter((p) => showUnnamed || p.nameKnown !== false)
         .filter((p) =>
           `${p.name} ${p.address}`.toLowerCase().includes(query.toLowerCase()),
         )
         .sort(
           (a, b) =>
-            Number(a.name.startsWith('Unnamed')) -
-              Number(b.name.startsWith('Unnamed')) ||
+            Number(a.nameKnown === false) -
+              Number(b.nameKnown === false) ||
             a.name.localeCompare(b.name),
         ),
-    [places, query],
+    [places, query, showUnnamed],
   );
   function select(p: Property | Place) {
     const existing = 'id' in p ? p : saved.find((s) => s.osmId === p.osmId);
@@ -477,6 +479,11 @@ export default function Homebase({
             <small>Free name search across the South Bay · OpenStreetMap</small>
             {nameSummary && <output>{nameSummary}</output>}
           </form>}
+          {tab === 'discover' && searched && <div className="discovery-quality">
+            <p>Apartment names first. Addresses are shown underneath.</p>
+            <label><input type="checkbox" checked={showUnnamed} onChange={(e) => setShowUnnamed(e.target.checked)} /> Include buildings without a mapped name ({places.filter((p) => p.nameKnown === false).length})</label>
+            <small>Missing names cannot be verified from the free map. You can name a property when saving it.</small>
+          </div>}
           <div className="searchbox">
             <Search size={18} />
             <input

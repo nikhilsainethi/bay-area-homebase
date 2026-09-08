@@ -14,6 +14,8 @@ A map-first apartment discovery and personal research tracker for Sunnyvale, San
 - Filter by monthly budget, bedrooms, progress, home type, available date and favorites. Compare one row per floor plan in the tracker table.
 - Add a rental manually by name/address/listing link and place its pin on the map.
 
+Area discovery shows named properties by default, with addresses underneath. Use **Include buildings without a mapped name** to inspect other footprints. Missing names are explicitly labeled and can be entered when saving; the app does not guess complex names from nearby buildings.
+
 ## Your data and backups
 
 **Sign in to save your shortlist in Supabase and open it from any device.** Each account can access only its own records, enforced by database row-level security. The app refreshes when you return to its tab. Create an app account using your email and confirm it before signing in.
