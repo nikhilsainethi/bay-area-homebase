@@ -1,3 +1,4 @@
+import { nameSearchQuery } from './name-search';
 import { CLOUD_MODE } from './supabase';
 import { listCloud, saveCloud, removeCloud, importCloud } from './cloud-store';
 import { parseBackup } from './cloud-records';
@@ -134,4 +135,32 @@ export async function importActiveBackup(raw: string) {
   return CLOUD_MODE
     ? await importCloud(parseBackup(raw))
     : browserStore().importBackup(raw);
+}
+
+const nameCache = new Map<string, Place[]>();
+let lastNameSearch = 0;
+export async function searchApartmentName(name: string): Promise<Place[]> {
+  const query = nameSearchQuery(name);
+  const key = name.trim().toLowerCase();
+  const cached = nameCache.get(key);
+  if (cached) return cached;
+  if (Date.now() - lastNameSearch < 8000)
+    throw new Error('Please wait a few seconds before searching another name.');
+  lastNameSearch = Date.now();
+  try {
+    const response = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      body: new URLSearchParams({data: query}),
+      signal: AbortSignal.timeout(25000),
+    });
+    if (!response.ok) throw new Error();
+    const data = (await response.json()) as { remark?: string; elements: unknown[] };
+    if (data.remark) throw new Error();
+    const places = normalizePlaces(data);
+    nameCache.set(key, places);
+    if (nameCache.size > 20) nameCache.delete(nameCache.keys().next().value!);
+    return places;
+  } catch {
+    throw new Error('The free name search is temporarily unavailable. Please try again shortly. Your shortlist is still available.');
+  }
 }

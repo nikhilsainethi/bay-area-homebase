@@ -6,6 +6,7 @@ A map-first apartment discovery and personal research tracker for Sunnyvale, San
 
 ## Find and compare apartments
 
+- Enter an apartment name in **Find an apartment by name** and press Search to find mapped name matches across the South Bay. Results use the same cards, pins, and Add to shortlist flow, including available contact details. Searches run only on submission, with throttling and session caching. Names missing from OpenStreetMap will not appear.
 - Pan and zoom, then **Search this area** for real mapped apartment buildings from OpenStreetMap.
 - Click a pin, open the property website when available, search online, or get directions to **Google Caribbean 100, 100 W Caribbean Dr, Sunnyvale CA 94089**.
 - Save properties with contacts, listing links, property type, progress, favorites and notes.

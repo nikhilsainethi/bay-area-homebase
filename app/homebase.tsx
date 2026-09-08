@@ -1,4 +1,5 @@
 'use client';
+import { searchApartmentName } from '@/lib/client';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api, BROWSER_MODE, browserStore } from '@/lib/client';
 import BrowserTools from './browser-tools';
@@ -126,6 +127,8 @@ export default function Homebase({
     [tab, setTab] = useState('discover'),
     [table, setTable] = useState(false),
     [query, setQuery] = useState(''),
+    [apartmentName, setApartmentName] = useState(''),
+    [nameSummary, setNameSummary] = useState(''),
     [searched, setSearched] = useState(false),
     [searching, setSearching] = useState(false),
     [loading, setLoading] = useState(true),
@@ -198,6 +201,8 @@ export default function Homebase({
         body: JSON.stringify(bounds),
       });
       setPlaces(d.places);
+      setQuery('');
+      setNameSummary('');
       setSearched(true);
       setTab('discover');
       if (d.limited)
@@ -210,6 +215,26 @@ export default function Homebase({
       setSearching(false);
     }
   }, [bounds, searching]);
+  async function searchName(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (searching) return;
+    setSearching(true);
+    setError('');
+    try {
+      const results = await searchApartmentName(apartmentName);
+      setPlaces(results);
+      setQuery('');
+      setSelected(null);
+      setSearched(true);
+      setTab('discover');
+      setTable(false);
+      setNameSummary(results.length
+        ? `Name matches for “${apartmentName.trim()}” across the South Bay. Select a result to review and save it.`
+        : `No mapped name matches for “${apartmentName.trim()}”. Try a shorter name, Search this area, or add the property manually.`);
+      if (results[0]) setCenter({lat: results[0].lat, lng: results[0].lng});
+    } catch (e) { setError((e as Error).message); }
+    finally { setSearching(false); }
+  }
   const filteredSaved = useMemo(
     () =>
       saved.filter((p) => {
@@ -442,6 +467,16 @@ export default function Homebase({
               </TabsTrigger>
             </TabsList>
           </Tabs>
+          {tab === 'discover' && <form className="name-search" onSubmit={searchName}>
+            <label htmlFor="apartment-name">Find an apartment by name</label>
+            <div className="searchbox">
+              <Search size={18} />
+              <input id="apartment-name" placeholder="e.g. Avalon, Monticello…" value={apartmentName} onChange={(e) => setApartmentName(e.target.value)} minLength={3} maxLength={100} required disabled={searching} />
+              <Button type="submit" disabled={searching || apartmentName.trim().length < 3}>{searching ? 'Searching…' : 'Search'}</Button>
+            </div>
+            <small>Free name search across the South Bay · OpenStreetMap</small>
+            {nameSummary && <output>{nameSummary}</output>}
+          </form>}
           <div className="searchbox">
             <Search size={18} />
             <input

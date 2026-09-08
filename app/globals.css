@@ -1428,3 +1428,9 @@ a:focus-visible {
     display: none;
   }
 }
+
+.name-search { display: grid; gap: 8px; margin: 16px 0; }
+.name-search > label { font-size: 13px; font-weight: 650; }
+.name-search .searchbox { margin: 0; padding-right: 5px; }
+.name-search small, .name-search p { font-size: 12px; color: var(--muted-foreground); line-height: 1.5; }
+.name-search p { margin: 0; }
